@@ -40,14 +40,20 @@ class Board:
 
     def __toGraph(self):
         graph = Graph()
+        sinkNode = Node((-1,-1), True, 1000)
+        graph.addNode(sinkNode)
+        rows = len(self.__grid)
+        cols = len(self.__grid[0])
         for i in range(len(self.__grid)):
             for j in range(len(self.__grid[0])):
                 if self.__grid[i][j] == "~":
                    continue
-                isBoundaryNode = self.__grid[i][j] == "." and (i == 0 or j == 0)
+                isBoundaryNode = self.__grid[i][j] != "~" and (i == 0 or j == 0 or i ==(rows-1) or j == (cols-1) )
                 n = Node((i,j),isBoundaryNode,1)
-                print(n.id)
                 graph.addNode(n)
+                # Connect boundary nodes to sink
+                if isBoundaryNode:
+                    graph.addEdge(n, sinkNode)
         print(graph)
         for i in range(len(self.__grid)):
             for j in range(len(self.__grid[0])):
