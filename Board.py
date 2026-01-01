@@ -4,6 +4,7 @@ from Graph import Graph, Node
 class Board:
     def __init__(self, str: str):
         self.__mapStr = str
+        self.__center = (0,0)
         self.__grid = self.__parseMapStr()
         self.__graph = self.__toGraph()
 
@@ -15,17 +16,19 @@ class Board:
     def addWall(self,i,j):
         if not self.__inBounds(i,j):
             return False
-        if self.__grid[i][j] != "🟩":
+        if self.__grid[i][j] != ".":
             return False
-        self.__grid[i][j] = "⬜"
+        self.__grid[i][j] = "x"
+        self.__graph.nodes.get((i,j)).blocked = True
         return True
     
     def removeWall(self,i,j):
         if not self.__inBounds(i,j):
             return False
-        if self.__grid[i][j] != "⬜":
+        if self.__grid[i][j] != "x":
             return False
-        self.__grid[i][j] = "🟩"
+        self.__grid[i][j] = "."
+        self.__graph.nodes.get((i,j)).blocked = False
         return True
 
     def __toCell(self,char: str):
@@ -54,7 +57,6 @@ class Board:
                 # Connect boundary nodes to sink
                 if isBoundaryNode:
                     graph.addEdge(n, sinkNode)
-        print(graph)
         for i in range(len(self.__grid)):
             for j in range(len(self.__grid[0])):
                 for adjI, adjJ in self.__getNeihbours(i,j):
@@ -64,7 +66,6 @@ class Board:
                     if not src:
                         continue
                     dest = graph.nodes.get((adjI,adjJ))
-                    print(f"Adding edge between {src.id} and {dest.id}")
                     graph.addEdge(src, dest)
         print(graph)
         return graph
@@ -76,6 +77,8 @@ class Board:
                 return "💧"
             case '.':
                 return "🟩"
+            case 'x':
+                return "⬜"
             case 'C':
                 return "🍇"
             case 'S':
@@ -96,9 +99,14 @@ class Board:
         for i in range(rows):
             for j in range(cols):
                 grid[i][j] = self.__toCell(lines[i][j])
-                if grid[i][j] == "🐴":
-                    self.horse = (i,j)
+                if grid[i][j] == "H":
+                    self.__center = (i,j)
         return grid
+    
+    def enclosed(self):
+        sinkNode = self.__graph.nodes.get((-1,-1))
+        mainNode = self.__graph.nodes.get(self.__center)
+        return not self.__graph.reachable(mainNode,sinkNode, set())
 
 
     def __repr__(self):

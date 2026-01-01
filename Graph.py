@@ -4,6 +4,15 @@ class Node:
         self.__id = label
         self.__isBoundaryNode = isBoundaryNode
         self.__capacity = capacity
+        self.__blocked = False
+
+    @property
+    def blocked(self):
+        return self.__blocked
+    
+    @blocked.setter
+    def blocked(self, value):
+        self.__blocked = value
 
     @property
     def id(self):
@@ -69,7 +78,7 @@ class Graph:
         if dest in [a for a,_ in self.__edges.get(src,[])]:
             return True
         visited.add(src.id)
-        return any([self.reachable(a[0], dest, visited) for a in self.__edges.get(src)])
+        return any([self.reachable(a[0], dest, visited) for a in self.__edges.get(src) if not a[0].blocked])
 
         
 
