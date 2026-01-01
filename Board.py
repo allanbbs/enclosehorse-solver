@@ -1,9 +1,17 @@
+from Graph import Graph, Node
+
+
 class Board:
     def __init__(self, str: str):
         self.__mapStr = str
         self.__grid = self.__parseMapStr()
+        self.__graph = self.__toGraph()
 
 
+    @property
+    def graph(self):
+        return self.__graph
+    
     def addWall(self,i,j):
         if not self.__inBounds(i,j):
             return False
@@ -21,24 +29,40 @@ class Board:
         return True
 
     def __toCell(self,char: str):
-        match char:
-            case '~':
-                return "💧"
-            case '.':
-                return "🟩"
-            case 'C':
-                return "C"
-            case 'S':
-                return "🐝"
-            case 'H':
-                return "🐴"
-            case 'G':
-                return "G"
-            # White square for box placement: ⬜
         return char
 
     def __inBounds(self,i,j):
         return 0 <= i < len(self.__grid) and 0 <= j < len(self.__grid[0])
+    
+    def __getNeihbours(self, i, j):
+        candidates = [(i+1,j), (i-1, j), (i, j+1), (i, j-1)]
+        return [(i,j) for i,j in candidates if self.__inBounds(i,j) and self.__grid[i][j] != '~']
+
+    def __toGraph(self):
+        graph = Graph()
+        for i in range(len(self.__grid)):
+            for j in range(len(self.__grid[0])):
+                if self.__grid[i][j] == "~":
+                   continue
+                isBoundaryNode = self.__grid[i][j] == "." and (i == 0 or j == 0)
+                n = Node((i,j),isBoundaryNode,1)
+                print(n.id)
+                graph.addNode(n)
+        print(graph)
+        for i in range(len(self.__grid)):
+            for j in range(len(self.__grid[0])):
+                for adjI, adjJ in self.__getNeihbours(i,j):
+                    if self.__grid[i][j] == "~":
+                        continue
+                    src = graph.nodes.get((i,j))
+                    if not src:
+                        continue
+                    dest = graph.nodes.get((adjI,adjJ))
+                    print(f"Adding edge between {src.id} and {dest.id}")
+                    graph.addEdge(src, dest)
+        print(graph)
+        return graph
+
     
     def __toPrettyCell(self, char: str):
         match char:
@@ -47,13 +71,13 @@ class Board:
             case '.':
                 return "🟩"
             case 'C':
-                return "C"
+                return "🍇"
             case 'S':
                 return "🐝"
             case 'H':
                 return "🐴"
             case 'G':
-                return "G"
+                return "🍎"
             # White square for box placement: ⬜
         return char
             
