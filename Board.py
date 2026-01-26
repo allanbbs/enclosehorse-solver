@@ -55,9 +55,12 @@ class Board:
             case 'S':
                 return "🐝"
             case 'H':
-                return "🐴"
+                return "💀" # -> Yeti easter egg xd
             case 'G':
                 return "🍎"
+        if char.isdigit():
+            raise("Portals are not supported yet")
+
         return char
             
     def __parseMapStr(self):
