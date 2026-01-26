@@ -34,14 +34,13 @@ class Board:
             return False
         self.__grid[i][j] = "."
         return True
+    
+    def inBounds(self,i,j):
+        return 0 <= i < len(self.__grid) and 0 <= j < len(self.__grid[0])
 
     def __toCell(self,char: str):
         return char
 
-    def inBounds(self,i,j):
-        return 0 <= i < len(self.__grid) and 0 <= j < len(self.__grid[0])
-
-    
     def __toPrettyCell(self, char: str):
         match char:
             case '~':

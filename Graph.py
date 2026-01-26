@@ -1,9 +1,8 @@
 
 class Node:
-    def __init__(self, label, isBoundaryNode = False, capacity = 0):
+    def __init__(self, label, isBoundaryNode = False):
         self.__id = label
         self.__isBoundaryNode = isBoundaryNode
-        self.__capacity = capacity
         self.__blocked = False
 
     @property
@@ -22,14 +21,10 @@ class Node:
     def isBoundaryNode(self):
         return self.__isBoundaryNode
     
-    @property
-    def capacity(self):
-        return self.__capacity
-    
     def __hash__(self):
         return hash(self.__id)
     def __repr__(self):
-        return str(f"({self.id}, {self.isBoundaryNode}, {self.capacity})")
+        return str(f"({self.id}, {self.isBoundaryNode}, {self.__blocked})")
 
 # Simple Graph using adjacency list repr
 class Graph:
@@ -40,6 +35,10 @@ class Graph:
     @property
     def nodes(self):
         return self.__nodes
+    
+    @property
+    def edges(self):
+        return self.__edges
     
     def addNode(self, node):
         self.__nodes[node.id] = node
