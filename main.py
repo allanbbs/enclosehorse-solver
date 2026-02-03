@@ -1,17 +1,25 @@
-from Board import *
-from Graph import *
+import json
+import urllib.request
+from datetime import date
+from Board import Board
 from Solver import Solver
 
+def getCurrentDayLevelInfo():
+    today = date.today()
+    date_str = today.strftime("%Y-%m-%d")
+    url = f"http://enclose.horse/api/daily/{date_str}"
+
+    with urllib.request.urlopen(url, timeout=10) as resp:
+        data = json.load(resp)
+
+    return data["map"], data["budget"]
 
 def main():
-    board = Board("~~S~~.~~~.~\n~~....~~~..\n...~~.~S~.~\n~~~~S......\n~~S~~.~C~.~\n.....H.....\n~~~.~.~~.~~\n~SS.~.S~...\n~S~.~.~~S~.\n~.~......~~\n....~.~....\n~~~.~.~.~~~")
-    solver = Solver(board)
-    while True:
-        print(board)
-        i, j = [int(a) for a in input().split()]
-        solver.addWall(i,j)
-        print(solver.enclosed())
-
+    boardStr, wallBudget = getCurrentDayLevelInfo()
+    print(boardStr, wallBudget)
+    board = Board(boardStr)
+    solver = Solver(board, wallBudget)
+    solver.solve()
 
 if __name__ == "__main__":
     main()
