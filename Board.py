@@ -8,22 +8,19 @@ class Cell(Enum):
     BEE = 4
     GRASS = 5
     WALL = 6
-    MARKED = -1
-
-scoreMap = {
-    Cell.CHERRY: 3,
-    Cell.BEE: -5,
-    Cell.APPLE: 10
-}
 
 class Board:
     def __init__(self, str: str):
         self.__mapStr = str
         self.__horse = (0,0)
         self.__grid = None
+        self.__portals = {}
         self.__parseMapStr()
-        self.marked = {}
         
+    @property
+    def portals(self):
+        return self.__portals
+
     @property
     def grid(self):
         return self.__grid
@@ -53,25 +50,11 @@ class Board:
         return self.__grid[i][j] and (isTopDownEdge or isLeftRightEdge)
     
     def reset(self):
+        self.portals.clear()
         self.__parseMapStr()
         self.marked ={}
 
-    def score(self):
-        def aux(grid, i,j, visited):
-            visited[(i,j)] = True
-            self.marked[(i,j)] = True
-            currentCellScore = 1 + scoreMap.get(grid[i][j]) if scoreMap.get(grid[i][j]) else 1
-            neighbours = [(i,j+1),(i,j-1),(i+1,j),(i-1,j)]
-            neighbours = [(x,y) for x,y in neighbours if self.inBounds(x,y) and grid[x][y] != Cell.DEAD and grid[x][y] != Cell.WALL]
-            for i1,j1 in neighbours:
-                if visited.get((i1,j1)):
-                    continue
-                currentCellScore += aux(grid, i1, j1, visited)
-
-            return currentCellScore
-        return aux(self.__grid, self.horsePosition[0], self.horsePosition[1], {})
-
-    def __toCell(self,char: str):
+    def __toCell(self,char: str, i, j):
         match char:
             case '~':
                 return Cell.DEAD
@@ -88,10 +71,17 @@ class Board:
             case 'G':
                 return Cell.APPLE
         if char.isdigit():
-            raise("Portals are not supported yet")
+            portalId = int(char)
+            print(f"Adding portal with id {portalId}")
+            if not self.__portals.get(portalId):
+                self.__portals[portalId] = [(i,j)]
+            else:
+                self.__portals.get(portalId).append((i,j))
+            return portalId
+
+        raise Exception(f"Unsupported char {char}")
 
     def __toPrettyCell(self, char):
-        self.k = 0
         match char:
             case Cell.GRASS:
                 return "🟩"
@@ -107,7 +97,7 @@ class Board:
                 return "🍎"
             case Cell.DEAD:
                 return "💧"
-        raise(Exception("Portals are not supported yet"))
+        return "🚪"
             
     def __parseMapStr(self):
         lines = self.__mapStr.split("\n")
@@ -116,7 +106,7 @@ class Board:
         grid = [[None] * cols for _ in range(rows)]
         for i in range(rows):
             for j in range(cols):
-                grid[i][j] = self.__toCell(lines[i][j])
+                grid[i][j] = self.__toCell(lines[i][j], i, j)
                 if grid[i][j] == Cell.HORSE:
                     self.__horse = (i,j)
         self.__grid = grid

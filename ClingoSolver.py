@@ -53,6 +53,15 @@ class ClingoSolver:
             water({i},{j}).
         """)
 
+    def addPortal(self, i, j, i2, j2):
+        self.solver.add("base", [],
+        f"""\
+            adj({i},{j}, {i2}, {j2}) :- node({i},{j}), node({i2}, {j2}).
+            adj({i2},{j2}, {i}, {j}) :- node({i2},{j2}), node({i}, {j}).
+            portal({i},{j}).
+            portal({i2},{j2}).
+        """)
+
     def __addBaseRules(self):
         command = f"""\
             #const walls={self.wallBudget}.
@@ -63,12 +72,12 @@ class ClingoSolver:
 
             valid(I, J) :- node(I,J), not water(I,J).
 
-            {{wall(I, J)}} :- valid(I,J), not apple(I,J), not cherry(I,J), not bee(I,J).
+            {{wall(I, J)}} :- valid(I,J), not apple(I,J), not cherry(I,J), not bee(I,J), not portal(I,J).
 
             :- #count {{ I,J : wall(I,J) }} > walls.
   
             z(I,J) :- horse(I,J).
-            z(R2,C2) :- z(R1,C1), adj(R1,C1, R2,C2), valid(R2,C2), not wall(R2, C2).
+            z(I2,J2) :- z(I1,J1), adj(I1,J1, I2,J2), valid(I2,J2), not wall(I2, J2).
             
             :- z(I,J), boundary(I,J).
             
