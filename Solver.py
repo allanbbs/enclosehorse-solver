@@ -62,6 +62,8 @@ class Solver(ClingoSolver):
                         super().addWater(i, j)
                     case Cell.HORSE:
                         super().addHorse(i, j)
+                    case Cell.UNICORN:
+                        super().addHorse(i, j)
                     case Cell.CHERRY:
                         super().addCherry(i, j)
                     case Cell.APPLE:

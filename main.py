@@ -7,11 +7,22 @@ from Solver import Solver
 def getCurrentDayLevelInfo():
     today = date.today()
     date_str = today.strftime("%Y-%m-%d")
+    date_str = "2026-03-16"
     url = f"http://enclose.horse/api/daily/{date_str}"
 
     with urllib.request.urlopen(url, timeout=10) as resp:
         data = json.load(resp)
     return data["id"], data["map"], data["budget"]
+
+def getCurrentDayBonusLevelInfo(id):
+    url = f"http://enclose.horse/api/daily/bonus/{id}"
+    try:
+        with urllib.request.urlopen(url, timeout=10) as resp:
+            data = json.load(resp)
+
+        return data["id"], data["map"], data["budget"]
+    except:
+        return None
 
 """ To submit the level
 await fetch("https://enclose.horse/api/levels/ECT9f-/submit", {
@@ -33,13 +44,22 @@ await fetch("https://enclose.horse/api/levels/ECT9f-/submit", {
     "mode": "cors"
 });
 """
-def main():
-    levelId, boardStr, wallBudget = getCurrentDayLevelInfo()
+
+def solve(levelInfo):
+    if not levelInfo:
+        return
+    levelId, boardStr, wallBudget = levelInfo
+    print(levelInfo)
     print(boardStr, wallBudget)
     board = Board(boardStr)
     print(board)
     solver = Solver(board, wallBudget)
     solver.solve()
 
+def main():
+    levelId, levelMap, budget = getCurrentDayLevelInfo()
+    solve((levelId,levelMap,budget))
+    solve(getCurrentDayBonusLevelInfo(levelId))
+    
 if __name__ == "__main__":
     main()

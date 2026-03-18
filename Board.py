@@ -8,14 +8,17 @@ class Cell(Enum):
     BEE = 4
     GRASS = 5
     WALL = 6
+    UNICORN = 7
 
 class Board:
     def __init__(self, str: str):
         self.__mapStr = str
         self.__horse = (0,0)
+        self.__unicorn = (0,0)
         self.__grid = None
         self.__portals = {}
         self.__parseMapStr()
+        self.isBonusType = False
         
     @property
     def portals(self):
@@ -70,6 +73,8 @@ class Board:
                 return Cell.HORSE # -> Yeti easter egg xd
             case 'G':
                 return Cell.APPLE
+            case 'U':
+                return Cell.UNICORN
         if char.isdigit():
             portalId = int(char)
             print(f"Adding portal with id {portalId}")
@@ -84,7 +89,7 @@ class Board:
     def __toPrettyCell(self, char):
         match char:
             case Cell.GRASS:
-                return "🟩"
+                return "🟩" if not self.isBonusType else "🟪"
             case Cell.WALL:
                 return "⬜"
             case Cell.CHERRY:
@@ -97,6 +102,8 @@ class Board:
                 return "🍎"
             case Cell.DEAD:
                 return "💧"
+            case Cell.UNICORN:
+                return "🦄"
         return "🚪"
             
     def __parseMapStr(self):
@@ -109,6 +116,8 @@ class Board:
                 grid[i][j] = self.__toCell(lines[i][j], i, j)
                 if grid[i][j] == Cell.HORSE:
                     self.__horse = (i,j)
+                elif grid[i][j] == Cell.UNICORN:
+                    self.isBonusType = True
         self.__grid = grid
 
     def __repr__(self):
